@@ -1,12 +1,44 @@
+/* TEMALAR */
 :root {
-    --primary-color: #FF7F11; /* Ana turuncu renk */
-    --secondary-color: #FF5E0B; /* Koyu turuncu */
-    --accent-color: #FFAA00; /* Altın sarısı */
-    --background-color: #FFF8F0; /* Açık krem rengi */
-    --text-color: #333333; /* Koyu gri metin */
-    --light-text: #FFFFFF; /* Beyaz metin */
-    --error-color: #FF3333; /* Kırmızı */
-    --success-color: #00AA55; /* Yeşil */
+    /* Turuncu Tema (Varsayılan) */
+    --primary-color: #FF7F11;
+    --secondary-color: #FF5E0B;
+    --accent-color: #FFAA00;
+    --background-color: #FFF8F0;
+    --text-color: #333333;
+    --light-text: #FFFFFF;
+    --error-color: #FF3333;
+    --success-color: #00AA55;
+    --border-color: #FFD8B8;
+    --message-bg: #FFEEDD;
+    --input-border: #FFD8B8;
+}
+
+/* Yeşil Tema */
+.green-theme {
+    --primary-color: #2E7D32;
+    --secondary-color: #1B5E20;
+    --accent-color: #4CAF50;
+    --background-color: #F1F8E9;
+    --text-color: #263238;
+    --border-color: #C8E6C9;
+    --message-bg: #E8F5E9;
+    --input-border: #C8E6C9;
+}
+
+/* Karanlık Tema */
+.dark-theme {
+    --primary-color: #FF7043;
+    --secondary-color: #FF5722;
+    --accent-color: #FF9800;
+    --background-color: #121212;
+    --text-color: #E0E0E0;
+    --light-text: #FFFFFF;
+    --error-color: #FF5252;
+    --success-color: #69F0AE;
+    --border-color: #424242;
+    --message-bg: #1E1E1E;
+    --input-border: #424242;
 }
 
 * {
@@ -20,6 +52,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
@@ -41,6 +74,47 @@ header h1 {
     color: var(--primary-color);
     font-size: 2.5rem;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.theme-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+}
+
+.theme-btn.active {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.theme-btn.orange {
+    background-color: #FF7F11;
+}
+
+.theme-btn.green {
+    background-color: #2E7D32;
+}
+
+.theme-btn.dark {
+    background-color: #121212;
 }
 
 .btn {
@@ -95,10 +169,11 @@ header h1 {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
-    border: 1px solid #FFD8B8;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     font-size: 1rem;
     transition: border 0.3s;
+    background-color: var(--background-color);
 }
 
 .auth-form input:focus {
@@ -112,7 +187,7 @@ header h1 {
     padding: 25px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(255, 127, 17, 0.1);
-    border: 1px solid #FFD8B8;
+    border: 1px solid var(--border-color);
 }
 
 .clan-controls {
@@ -124,9 +199,10 @@ header h1 {
 .clan-controls input {
     flex: 1;
     padding: 12px;
-    border: 1px solid #FFD8B8;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     font-size: 1rem;
+    background-color: var(--background-color);
 }
 
 .clan-controls input:focus {
@@ -142,20 +218,20 @@ header h1 {
 
 #clan-list li {
     padding: 12px 15px;
-    border-bottom: 1px solid #FFE8D8;
+    border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: all 0.2s;
     border-radius: 5px;
 }
 
 #clan-list li:hover {
-    background-color: #FFF0E5;
+    background-color: var(--message-bg);
     transform: translateX(5px);
 }
 
 #clan-chat {
     margin-top: 25px;
-    border: 1px solid #FFD8B8;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 20px;
     background: white;
@@ -164,21 +240,21 @@ header h1 {
 #messages {
     height: 400px;
     overflow-y: auto;
-    border: 1px solid #FFE0C8;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 15px;
-    background-color: #FFFCF9;
+    background-color: var(--background-color);
 }
 
 .message {
     margin-bottom: 12px;
     padding: 10px 15px;
-    background-color: #FFEEDD;
+    background-color: var(--message-bg);
     border-radius: 15px;
     display: inline-block;
     max-width: 70%;
-    border: 1px solid #FFD8B8;
+    border: 1px solid var(--border-color);
 }
 
 .message.sent {
@@ -196,9 +272,10 @@ header h1 {
 .message-input input {
     flex: 1;
     padding: 12px;
-    border: 1px solid #FFD8B8;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     font-size: 1rem;
+    background-color: var(--background-color);
 }
 
 .message-input input:focus {
@@ -236,6 +313,18 @@ footer {
     border: 1px solid var(--success-color);
 }
 
+/* Dark theme özel stilleri */
+.dark-theme .auth-form,
+.dark-theme .clan-section,
+.dark-theme #clan-chat {
+    background-color: #1E1E1E;
+    color: var(--text-color);
+}
+
+.dark-theme #clan-list li:hover {
+    background-color: #2D2D2D;
+}
+
 /* Responsive tasarım */
 @media (max-width: 768px) {
     .container {
@@ -243,6 +332,11 @@ footer {
     }
     
     header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .header-controls {
         flex-direction: column;
         gap: 15px;
     }
