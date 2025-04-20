@@ -20,22 +20,21 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header kısmına tema butonlarını ekle -->
-<header>
-    <h1>Quastid</h1>
-    <div class="header-controls">
-        <div class="theme-buttons">
-            <button class="theme-btn orange active" data-theme="orange"></button>
-            <button class="theme-btn green" data-theme="green"></button>
-            <button class="theme-btn dark" data-theme="dark"></button>
-        </div>
-        <div id="auth-buttons">
-            <button id="login-btn" class="btn">Giriş Yap</button>
-            <button id="register-btn" class="btn">Kayıt Ol</button>
-            <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
-        </div>
-    </div>
-</header>
+        <header>
+            <h1>Quastid</h1>
+            <div class="header-controls">
+                <div class="theme-buttons">
+                    <button class="theme-btn orange active" data-theme="orange"></button>
+                    <button class="theme-btn green" data-theme="green"></button>
+                    <button class="theme-btn dark" data-theme="dark"></button>
+                </div>
+                <div id="auth-buttons">
+                    <button id="login-btn" class="btn">Giriş Yap</button>
+                    <button id="register-btn" class="btn">Kayıt Ol</button>
+                    <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
+                </div>
+            </div>
+        </header>
 
         <div id="auth-forms" class="hidden">
             <div class="auth-form">
@@ -48,6 +47,11 @@
 
             <div class="auth-form">
                 <h2>Kayıt Ol</h2>
+                <div class="theme-buttons" style="justify-content: center; margin-bottom: 15px;">
+                    <button class="theme-btn orange active" data-theme="orange"></button>
+                    <button class="theme-btn green" data-theme="green"></button>
+                    <button class="theme-btn dark" data-theme="dark"></button>
+                </div>
                 <input type="text" id="register-username" placeholder="Kullanıcı Adı">
                 <input type="email" id="register-email" placeholder="E-posta">
                 <input type="password" id="register-password" placeholder="Şifre">
@@ -81,7 +85,7 @@
         </main>
 
         <footer>
-            <p>© <script>var yıl = new Date().getFullYear(); document.write(yıl);</script> Quastid - Tüm hakları saklıdır</p>
+            <p>© 2023 Quastid - Tüm hakları saklıdır</p>
         </footer>
     </div>
 
