@@ -1,156 +1,172 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Klan Topluluğu</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <script src="firebase.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .auth-forms, .clans {
-      display: grid;
-      gap: 20px;
-    }
-    .clan {
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 5px;
-    }
-    button, input, textarea {
-      padding: 8px;
-      margin: 5px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quastid - Topluluklarını Keşfet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<div id="app">
-  <!-- Giriş/Kayıt Formları -->
-  <div id="auth-forms" v-if="!user">
-    <div>
-      <h3>Kayıt Ol</h3>
-      <input v-model="register.username" placeholder="Kullanıcı adı">
-      <input v-model="register.password" type="password" placeholder="Şifre">
-      <button @click="signUp">Kayıt Ol</button>
-    </div>
-    <div>
-      <h3>Giriş Yap</h3>
-      <input v-model="login.username" placeholder="Kullanıcı adı">
-      <input v-model="login.password" type="password" placeholder="Şifre">
-      <button @click="signIn">Giriş Yap</button>
-    </div>
-  </div>
-
-  <!-- Klan ve Gönderi İşlemleri -->
-  <div v-else>
-    <button @click="signOut">Çıkış Yap</button>
-    <h3>Hoş geldin, {{ user.displayName || user.email }}</h3>
-    
-    <div>
-      <h4>Yeni Klan</h4>
-      <input v-model="newClan.name" placeholder="Klan adı">
-      <button @click="createClan">Oluştur</button>
-    </div>
-
-    <div>
-      <h4>Gönderi Yap</h4>
-      <select v-model="newPost.clanId">
-        <option v-for="clan in clans" :value="clan.id">{{ clan.name }}</option>
-      </select>
-      <textarea v-model="newPost.content" placeholder="Mesajınız..."></textarea>
-      <button @click="createPost">Gönder</button>
-    </div>
-
-    <!-- Klan Listesi -->
-    <div class="clans">
-      <div v-for="clan in clans" :key="clan.id" class="clan">
-        <h4>{{ clan.name }}</h4>
-        <div v-for="post in posts.filter(p => p.clanId === clan.id)" :key="post.id">
-          <p><strong>{{ post.author }}:</strong> {{ post.content }}</p>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                <h1>KlanTopia</h1>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#" id="home-link">Ana Sayfa</a></li>
+                    <li><a href="#" id="clans-link">Klanlar</a></li>
+                    <li><a href="#" id="create-clan-link" class="hidden">Klan Oluştur</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <button id="login-btn" class="btn btn-outline">Giriş Yap</button>
+                <button id="register-btn" class="btn btn-primary">Kaydol</button>
+                <button id="logout-btn" class="btn btn-danger hidden">Çıkış Yap</button>
+                <span id="username-display" class="hidden"></span>
+            </div>
         </div>
-      </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <section id="home-section" class="active-section">
+                <div class="hero">
+                    <h2>Topluluklarını Keşfet</h2>
+                    <p>İlgi alanlarını paylaşan insanlarla bağlantı kur, klanlara katıl veya kendi klanını oluştur.</p>
+                    <button id="explore-clans-btn" class="btn btn-primary">Klanları Keşfet</button>
+                </div>
+                
+                <div class="trending-clans">
+                    <h3>Popüler Klanlar</h3>
+                    <div class="clan-grid" id="trending-clans">
+                        <!-- Dinamik olarak doldurulacak -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="clans-section" class="hidden-section">
+                <div class="section-header">
+                    <h2>Tüm Klanlar</h2>
+                    <div class="search-box">
+                        <input type="text" id="clan-search" placeholder="Klan ara...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div class="clan-grid" id="all-clans">
+                    <!-- Dinamik olarak doldurulacak -->
+                </div>
+            </section>
+
+            <section id="create-clan-section" class="hidden-section">
+                <h2>Yeni Klan Oluştur</h2>
+                <form id="create-clan-form">
+                    <div class="form-group">
+                        <label for="clan-name">Klan Adı</label>
+                        <input type="text" id="clan-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clan-description">Açıklama</label>
+                        <textarea id="clan-description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="clan-tags">Etiketler (virgülle ayırın)</label>
+                        <input type="text" id="clan-tags" placeholder="örnek: oyun, fps, rekabet">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Klanı Oluştur</button>
+                </form>
+            </section>
+
+            <section id="clan-detail-section" class="hidden-section">
+                <div class="clan-header">
+                    <div class="clan-info">
+                        <h2 id="clan-detail-name">Klan Adı</h2>
+                        <p id="clan-detail-description">Klan açıklaması burada yer alacak.</p>
+                        <div class="clan-tags" id="clan-detail-tags">
+                            <!-- Etiketler buraya eklenecek -->
+                        </div>
+                        <div class="clan-meta">
+                            <span><i class="fas fa-users"></i> <span id="clan-member-count">0</span> üye</span>
+                            <span><i class="fas fa-calendar-alt"></i> <span id="clan-created-date">01.01.2023</span></span>
+                        </div>
+                    </div>
+                    <div class="clan-actions">
+                        <button id="join-clan-btn" class="btn btn-primary">Katıl</button>
+                        <button id="leave-clan-btn" class="btn btn-outline hidden">Ayrıl</button>
+                    </div>
+                </div>
+
+                <div class="clan-content">
+                    <div class="clan-chat">
+                        <h3>Klan Sohbeti</h3>
+                        <div class="chat-messages" id="clan-chat-messages">
+                            <!-- Mesajlar buraya eklenecek -->
+                        </div>
+                        <form id="clan-chat-form" class="hidden">
+                            <input type="text" id="clan-chat-input" placeholder="Bir mesaj yaz...">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                    <div class="clan-members">
+                        <h3>Üyeler</h3>
+                        <ul id="clan-members-list">
+                            <!-- Üyeler buraya eklenecek -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Auth Modalları -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Giriş Yap</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Kullanıcı Adı</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Şifre</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Giriş Yap</button>
+            </form>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- Vue.js ve Uygulama JS -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script>
-  const { createApp, ref, onMounted } = Vue;
+    <div id="register-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Kaydol</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Kullanıcı Adı</label>
+                    <input type="text" id="register-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Şifre</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Şifreyi Onayla</label>
+                    <input type="password" id="register-confirm-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Kaydol</button>
+            </form>
+        </div>
+    </div>
 
-  createApp({
-    setup() {
-      // Veriler
-      const user = ref(null);
-      const clans = ref([]);
-      const posts = ref([]);
-      const register = ref({ username: '', password: '' });
-      const login = ref({ username: '', password: '' });
-      const newClan = ref({ name: '' });
-      const newPost = ref({ clanId: '', content: '' });
-
-      // Firebase İşlemleri
-      const signUp = async () => {
-        await firebase.auth().createUserWithEmailAndPassword(
-          `${register.value.username}@klan.com`, 
-          register.value.password
-        );
-      };
-
-      const signIn = async () => {
-        await firebase.auth().signInWithEmailAndPassword(
-          `${login.value.username}@klan.com`, 
-          login.value.password
-        );
-      };
-
-      const signOut = () => firebase.auth().signOut();
-
-      const createClan = async () => {
-        await firebase.firestore().collection('clans').add({
-          name: newClan.value.name,
-          creator: user.value.uid
-        });
-        newClan.value.name = '';
-      };
-
-      const createPost = async () => {
-        await firebase.firestore().collection('posts').add({
-          content: newPost.value.content,
-          clanId: newPost.value.clanId,
-          author: user.value.email,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        newPost.value.content = '';
-      };
-
-      // Gerçek zamanlı veri dinleme
-      onMounted(() => {
-        firebase.auth().onAuthStateChanged(u => user.value = u);
-
-        firebase.firestore().collection('clans').onSnapshot(snapshot => {
-          clans.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        });
-
-        firebase.firestore().collection('posts').onSnapshot(snapshot => {
-          posts.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        });
-      });
-
-      return {
-        user, clans, posts, register, login, newClan, newPost,
-        signUp, signIn, signOut, createClan, createPost
-      };
-    }
-  }).mount('#app');
-</script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
