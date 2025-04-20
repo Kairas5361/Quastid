@@ -179,5 +179,9 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script type="module">
+    import { database, auth } from './firebase-init.js';
+    window.firebase = { database, auth };
+</script>
 </body>
 </html>
