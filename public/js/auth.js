@@ -1,122 +1,155 @@
-// Giriş formu elementleri
-const loginForm = document.querySelector('.auth-form:first-child');
-const loginEmail = document.getElementById('login-email');
-const loginPassword = document.getElementById('login-password');
-const submitLogin = document.getElementById('submit-login');
-const cancelLogin = document.getElementById('cancel-login');
+// Firebase Authentication İşlemleri
 
-// Kayıt formu elementleri
-const registerForm = document.querySelector('.auth-form:last-child');
-const registerUsername = document.getElementById('register-username');
-const registerEmail = document.getElementById('register-email');
-const registerPassword = document.getElementById('register-password');
-const submitRegister = document.getElementById('submit-register');
-const cancelRegister = document.getElementById('cancel-register');
-
-// Giriş yap butonu
+// Giriş Formu İşlemleri
 document.getElementById('login-btn').addEventListener('click', () => {
-    authForms.classList.remove('hidden');
-    loginForm.classList.remove('hidden');
-    registerForm.classList.add('hidden');
+    document.getElementById('login-form').classList.remove('hidden');
 });
 
-// Kayıt ol butonu
 document.getElementById('register-btn').addEventListener('click', () => {
-    authForms.classList.remove('hidden');
-    loginForm.classList.add('hidden');
-    registerForm.classList.remove('hidden');
+    document.getElementById('register-form').classList.remove('hidden');
 });
 
-// Giriş formu iptal
-cancelLogin.addEventListener('click', () => {
-    authForms.classList.add('hidden');
-    loginEmail.value = '';
-    loginPassword.value = '';
+// Modal Kapatma Butonları
+document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        this.closest('.auth-modal').classList.add('hidden');
+        clearErrors();
+    });
 });
 
-// Kayıt formu iptal
-cancelRegister.addEventListener('click', () => {
-    authForms.classList.add('hidden');
-    registerUsername.value = '';
-    registerEmail.value = '';
-    registerPassword.value = '';
-});
+// Hataları Temizleme
+function clearErrors() {
+    document.querySelectorAll('.error').forEach(el => {
+        el.classList.add('hidden');
+    });
+}
 
-// Giriş yapma işlemi
-submitLogin.addEventListener('click', () => {
-    const email = loginEmail.value;
-    const password = loginPassword.value;
-    
-    if (!email || !password) {
-        showError('Lütfen tüm alanları doldurun');
-        return;
-    }
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            authForms.classList.add('hidden');
-            loginEmail.value = '';
-            loginPassword.value = '';
-        })
-        .catch(error => {
-            showError(error.message);
-        });
-});
+// Hata Gösterme
+function showError(modalId, message) {
+    const errorElement = document.getElementById(`${modalId}-error`);
+    errorElement.textContent = message;
+    errorElement.classList.remove('hidden');
+}
 
-// Kayıt olma işlemi
-submitRegister.addEventListener('click', () => {
-    const username = registerUsername.value;
-    const email = registerEmail.value;
-    const password = registerPassword.value;
+// Kayıt İşlemi
+document.getElementById('submit-register').addEventListener('click', async () => {
+    const username = document.getElementById('register-username').value.trim();
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value;
     
     if (!username || !email || !password) {
-        showError('Lütfen tüm alanları doldurun');
+        showError('register', 'Lütfen tüm alanları doldurun');
         return;
     }
     
     if (password.length < 6) {
-        showError('Şifre en az 6 karakter olmalıdır');
+        showError('register', 'Şifre en az 6 karakter olmalıdır');
         return;
     }
     
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            // Kullanıcı bilgilerini Firestore'a kaydet
-            return db.collection('users').doc(userCredential.user.uid).set({
-                username: username,
-                email: email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        })
-        .then(() => {
-            authForms.classList.add('hidden');
-            registerUsername.value = '';
-            registerEmail.value = '';
-            registerPassword.value = '';
-        })
-        .catch(error => {
-            showError(error.message);
+    try {
+        // Firebase'de kullanıcı oluştur
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        
+        // Firestore'da kullanıcı bilgilerini kaydet
+        await firebase.firestore().collection('users').doc(userCredential.user.uid).set({
+            username: username,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            profilePicture: 'images/default-profile.png'
         });
+        
+        // Başarılı kayıt
+        document.getElementById('register-form').classList.add('hidden');
+        clearForm('register');
+        alert('Kayıt başarılı! Giriş yapabilirsiniz.');
+        
+    } catch (error) {
+        console.error('Kayıt hatası:', error);
+        showError('register', error.message);
+    }
 });
 
-// Hata mesajı gösterme
-function showError(message) {
-    const errorElement = document.createElement('div');
-    errorElement.className = 'error';
-    errorElement.textContent = message;
+// Giriş İşlemi
+document.getElementById('submit-login').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
     
-    const currentForm = document.querySelector('.auth-form:not(.hidden)');
-    const existingError = currentForm.querySelector('.error');
-    
-    if (existingError) {
-        currentForm.removeChild(existingError);
+    if (!email || !password) {
+        showError('login', 'Lütfen tüm alanları doldurun');
+        return;
     }
     
-    currentForm.insertBefore(errorElement, currentForm.firstChild);
+    try {
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+        document.getElementById('login-form').classList.add('hidden');
+        clearForm('login');
+    } catch (error) {
+        console.error('Giriş hatası:', error);
+        showError('login', error.message);
+    }
+});
+
+// Formları Temizleme
+function clearForm(formType) {
+    if (formType === 'login') {
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+    } else if (formType === 'register') {
+        document.getElementById('register-username').value = '';
+        document.getElementById('register-email').value = '';
+        document.getElementById('register-password').value = '';
+    }
+    clearErrors();
+}
+
+// Kullanıcı Durumunu Dinleme
+firebase.auth().onAuthStateChanged(user => {
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const profileBtn = document.getElementById('profile-btn');
+    const mainContent = document.getElementById('main-content');
     
-    setTimeout(() => {
-        if (errorElement.parentNode) {
-            errorElement.parentNode.removeChild(errorElement);
+    if (user) {
+        // Kullanıcı giriş yapmış
+        loginBtn.classList.add('hidden');
+        registerBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+        profileBtn.classList.remove('hidden');
+        mainContent.classList.remove('hidden');
+        
+        // Kullanıcı bilgilerini yükle
+        loadUserProfile(user.uid);
+    } else {
+        // Kullanıcı giriş yapmamış
+        loginBtn.classList.remove('hidden');
+        registerBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
+        profileBtn.classList.add('hidden');
+        mainContent.classList.add('hidden');
+    }
+});
+
+// Çıkış İşlemi
+document.getElementById('logout-btn').addEventListener('click', () => {
+    firebase.auth().signOut().then(() => {
+        console.log('Çıkış yapıldı');
+    }).catch(error => {
+        console.error('Çıkış hatası:', error);
+    });
+});
+
+// Kullanıcı Profilini Yükleme
+async function loadUserProfile(userId) {
+    try {
+        const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            document.getElementById('display-name').textContent = userData.username;
+            document.getElementById('profile-pic').src = userData.profilePicture;
         }
-    }, 5000);
+    } catch (error) {
+        console.error('Profil yükleme hatası:', error);
+    }
 }
