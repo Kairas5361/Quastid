@@ -23,74 +23,75 @@
         <header>
             <h1>Quastid</h1>
             <div class="header-controls">
-                <div class="theme-buttons">
-                    <button class="theme-btn orange active" data-theme="orange"></button>
-                    <button class="theme-btn green" data-theme="green"></button>
-                    <button class="theme-btn dark" data-theme="dark"></button>
-                </div>
                 <div id="auth-buttons">
                     <button id="login-btn" class="btn">Giriş Yap</button>
                     <button id="register-btn" class="btn">Kayıt Ol</button>
                     <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
+                    <div id="profile-btn" class="hidden">
+                        <img id="profile-pic" src="images/default-profile.png" alt="Profil">
+                    </div>
                 </div>
             </div>
         </header>
 
-        <div id="auth-forms" class="hidden">
-            <div class="auth-form">
+        <!-- Giriş Formu -->
+        <div id="login-form" class="auth-modal hidden">
+            <div class="auth-content">
+                <span class="close-btn">&times;</span>
                 <h2>Giriş Yap</h2>
+                <div id="login-error" class="error hidden"></div>
                 <input type="email" id="login-email" placeholder="E-posta">
                 <input type="password" id="login-password" placeholder="Şifre">
                 <button id="submit-login" class="btn">Giriş Yap</button>
-                <button id="cancel-login" class="btn cancel">İptal</button>
             </div>
+        </div>
 
-            <div class="auth-form">
+        <!-- Kayıt Formu -->
+        <div id="register-form" class="auth-modal hidden">
+            <div class="auth-content">
+                <span class="close-btn">&times;</span>
                 <h2>Kayıt Ol</h2>
-                <div class="theme-buttons" style="justify-content: center; margin-bottom: 15px;">
-                    <button class="theme-btn orange active" data-theme="orange"></button>
-                    <button class="theme-btn green" data-theme="green"></button>
-                    <button class="theme-btn dark" data-theme="dark"></button>
-                </div>
+                <div id="register-error" class="error hidden"></div>
                 <input type="text" id="register-username" placeholder="Kullanıcı Adı">
                 <input type="email" id="register-email" placeholder="E-posta">
-                <input type="password" id="register-password" placeholder="Şifre">
+                <input type="password" id="register-password" placeholder="Şifre (en az 6 karakter)">
                 <button id="submit-register" class="btn">Kayıt Ol</button>
-                <button id="cancel-register" class="btn cancel">İptal</button>
+            </div>
+        </div>
+
+        <!-- Profil Düzenleme -->
+        <div id="profile-modal" class="auth-modal hidden">
+            <div class="auth-content">
+                <span class="close-btn">&times;</span>
+                <h2>Profilimi Düzenle</h2>
+                <div id="profile-error" class="error hidden"></div>
+                <div class="profile-picture-container">
+                    <img id="profile-picture-preview" src="images/default-profile.png" alt="Profil Resmi">
+                    <input type="file" id="profile-picture-upload" accept="image/*">
+                </div>
+                <input type="text" id="profile-username" placeholder="Kullanıcı Adı">
+                <input type="email" id="profile-email" placeholder="E-posta">
+                <input type="password" id="profile-password" placeholder="Yeni Şifre (boş bırakabilirsiniz)">
+                <button id="save-profile" class="btn">Değişiklikleri Kaydet</button>
             </div>
         </div>
 
         <main id="main-content" class="hidden">
-            <div class="clan-section">
-                <div class="clan-controls">
-                    <input type="text" id="clan-name" placeholder="Klan Adı">
-                    <button id="create-clan" class="btn">Klan Kur</button>
-                    <button id="join-clan" class="btn">Klanlara Katıl</button>
-                </div>
-
-                <div id="clan-list" class="hidden">
-                    <h3>Klanlar</h3>
-                    <ul id="clans"></ul>
-                </div>
-
-                <div id="clan-chat" class="hidden">
-                    <h3 id="current-clan-name">Klan Sohbeti</h3>
-                    <div id="messages"></div>
-                    <div class="message-input">
-                        <input type="text" id="message-input" placeholder="Mesaj yaz...">
-                        <button id="send-message" class="btn">Gönder</button>
-                    </div>
-                </div>
+            <!-- Ana içerik burada olacak -->
+            <div class="welcome-message">
+                <h2 id="welcome-text">Hoş geldiniz, <span id="display-name"></span>!</h2>
             </div>
+            
+            <!-- Klan bölümü buraya gelecek -->
         </main>
 
         <footer>
-            <p>© <script>var yıl = new Date().getFullYear(); document.write(yıl);</script> Quastid - Tüm hakları saklıdır</p>
+            <p>© 2023 Quastid - Tüm hakları saklıdır</p>
         </footer>
     </div>
 
     <script src="js/auth.js"></script>
-    <script src="js/clan.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
