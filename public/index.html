@@ -11,177 +11,74 @@
 <meta name="description" content="A Reddit Alternative">
 <meta name="keywords" content="HTML, CSS, JavaScript">
 <meta name="author" content="Kairas5361">
-    <title>Quastid - Topluluklarını Keşfet</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Quastid - Klan Sohbet</title>
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-users"></i>
-                <h1>Quastid</h1>
+    <div class="container">
+        <header>
+            <h1>Quastid</h1>
+            <div id="auth-buttons">
+                <button id="login-btn" class="btn">Giriş Yap</button>
+                <button id="register-btn" class="btn">Kayıt Ol</button>
+                <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
             </div>
-            <nav class="nav">
-                <ul>
-                    <li><a href="#" id="home-link">Ana Sayfa</a></li>
-                    <li><a href="#" id="clans-link">Klanlar</a></li>
-                    <li><a href="#" id="create-clan-link" class="hidden">Klan Oluştur</a></li>
-                </ul>
-            </nav>
-            <div class="auth-buttons">
-                <button id="login-btn" class="btn btn-outline">Giriş Yap</button>
-                <button id="register-btn" class="btn btn-primary">Kaydol</button>
-                <button id="logout-btn" class="btn btn-danger hidden">Çıkış Yap</button>
-                <span id="username-display" class="hidden"></span>
+        </header>
+
+        <div id="auth-forms" class="hidden">
+            <div class="auth-form">
+                <h2>Giriş Yap</h2>
+                <input type="email" id="login-email" placeholder="E-posta">
+                <input type="password" id="login-password" placeholder="Şifre">
+                <button id="submit-login" class="btn">Giriş Yap</button>
+                <button id="cancel-login" class="btn cancel">İptal</button>
+            </div>
+
+            <div class="auth-form">
+                <h2>Kayıt Ol</h2>
+                <input type="text" id="register-username" placeholder="Kullanıcı Adı">
+                <input type="email" id="register-email" placeholder="E-posta">
+                <input type="password" id="register-password" placeholder="Şifre">
+                <button id="submit-register" class="btn">Kayıt Ol</button>
+                <button id="cancel-register" class="btn cancel">İptal</button>
             </div>
         </div>
-    </header>
 
-    <main class="main-content">
-        <div class="container">
-            <section id="home-section" class="active-section">
-                <div class="hero">
-                    <h2>Topluluklarını Keşfet</h2>
-                    <p>İlgi alanlarını paylaşan insanlarla bağlantı kur, klanlara katıl veya kendi klanını oluştur.</p>
-                    <button id="explore-clans-btn" class="btn btn-primary">Klanları Keşfet</button>
-                </div>
-                
-                <div class="trending-clans">
-                    <h3>Popüler Klanlar</h3>
-                    <div class="clan-grid" id="trending-clans">
-                        <!-- Dinamik olarak doldurulacak -->
-                    </div>
-                </div>
-            </section>
-
-            <section id="clans-section" class="hidden-section">
-                <div class="section-header">
-                    <h2>Tüm Klanlar</h2>
-                    <div class="search-box">
-                        <input type="text" id="clan-search" placeholder="Klan ara...">
-                        <i class="fas fa-search"></i>
-                    </div>
-                </div>
-                <div class="clan-grid" id="all-clans">
-                    <!-- Dinamik olarak doldurulacak -->
-                </div>
-            </section>
-
-            <section id="create-clan-section" class="hidden-section">
-                <h2>Yeni Klan Oluştur</h2>
-                <form id="create-clan-form">
-                    <div class="form-group">
-                        <label for="clan-name">Klan Adı</label>
-                        <input type="text" id="clan-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="clan-description">Açıklama</label>
-                        <textarea id="clan-description" rows="4" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="clan-tags">Etiketler (virgülle ayırın)</label>
-                        <input type="text" id="clan-tags" placeholder="örnek: oyun, fps, rekabet">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Klanı Oluştur</button>
-                </form>
-            </section>
-
-            <section id="clan-detail-section" class="hidden-section">
-                <div class="clan-header">
-                    <div class="clan-info">
-                        <h2 id="clan-detail-name">Klan Adı</h2>
-                        <p id="clan-detail-description">Klan açıklaması burada yer alacak.</p>
-                        <div class="clan-tags" id="clan-detail-tags">
-                            <!-- Etiketler buraya eklenecek -->
-                        </div>
-                        <div class="clan-meta">
-                            <span><i class="fas fa-users"></i> <span id="clan-member-count">0</span> üye</span>
-                            <span><i class="fas fa-calendar-alt"></i> <span id="clan-created-date">01.01.2023</span></span>
-                        </div>
-                    </div>
-                    <div class="clan-actions">
-                        <button id="join-clan-btn" class="btn btn-primary">Katıl</button>
-                        <button id="leave-clan-btn" class="btn btn-outline hidden">Ayrıl</button>
-                    </div>
+        <main id="main-content" class="hidden">
+            <div class="clan-section">
+                <div class="clan-controls">
+                    <input type="text" id="clan-name" placeholder="Klan Adı">
+                    <button id="create-clan" class="btn">Klan Kur</button>
+                    <button id="join-clan" class="btn">Klanlara Katıl</button>
                 </div>
 
-                <div class="clan-content">
-                    <div class="clan-chat">
-                        <h3>Klan Sohbeti</h3>
-                        <div class="chat-messages" id="clan-chat-messages">
-                            <!-- Mesajlar buraya eklenecek -->
-                        </div>
-                        <form id="clan-chat-form" class="hidden">
-                            <input type="text" id="clan-chat-input" placeholder="Bir mesaj yaz...">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                        </form>
-                    </div>
-                    <div class="clan-members">
-                        <h3>Üyeler</h3>
-                        <ul id="clan-members-list">
-                            <!-- Üyeler buraya eklenecek -->
-                        </ul>
-                    </div>
+                <div id="clan-list" class="hidden">
+                    <h3>Klanlar</h3>
+                    <ul id="clans"></ul>
                 </div>
-            </section>
-        </div>
-    </main>
 
-    <!-- Auth Modalları -->
-    <div id="login-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Giriş Yap</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-username">Kullanıcı Adı</label>
-                    <input type="text" id="login-username" required>
+                <div id="clan-chat" class="hidden">
+                    <h3 id="current-clan-name">Klan Sohbeti</h3>
+                    <div id="messages"></div>
+                    <div class="message-input">
+                        <input type="text" id="message-input" placeholder="Mesaj yaz...">
+                        <button id="send-message" class="btn">Gönder</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="login-password">Şifre</label>
-                    <input type="password" id="login-password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Giriş Yap</button>
-            </form>
-        </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2023 Quastid - Tüm hakları saklıdır</p>
+        </footer>
     </div>
 
-    <div id="register-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Kaydol</h2>
-            <form id="register-form">
-                <div class="form-group">
-                    <label for="register-username">Kullanıcı Adı</label>
-                    <input type="text" id="register-username" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-email">Email</label>
-                    <input type="email" id="register-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-password">Şifre</label>
-                    <input type="password" id="register-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-confirm-password">Şifreyi Onayla</label>
-                    <input type="password" id="register-confirm-password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Kaydol</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="data.js"></script>
-    <script src="script.js"></script>
-    <script type="module">
-    import { database, auth } from './firebase-init.js';
-    window.firebase = { database, auth };
-</script>
+    <script src="js/auth.js"></script>
+    <script src="js/clan.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
