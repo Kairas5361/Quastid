@@ -1,54 +1,22 @@
 :root {
     --primary-color: #FF7F11;
     --secondary-color: #FF5E0B;
-    --accent-color: #FFAA00;
     --background-color: #FFF8F0;
+    --card-color: #FFFFFF;
     --text-color: #333333;
     --light-text: #FFFFFF;
+    --border-color: #FFD8B8;
     --error-color: #FF3333;
     --success-color: #00AA55;
-    --border-color: #FFD8B8;
-    --message-bg: #FFEEDD;
-    --input-border: #FFD8B8;
 }
 
-/* Yeşil Tema */
-.green-theme {
-    --primary-color: #2E7D32;
-    --secondary-color: #1B5E20;
-    --accent-color: #4CAF50;
-    --background-color: #F1F8E9;
-    --text-color: #263238;
-    --border-color: #C8E6C9;
-    --message-bg: #E8F5E9;
-    --input-border: #C8E6C9;
-}
-
-/* Karanlık Tema */
-.dark-theme {
-    --primary-color: #FF7043;
-    --secondary-color: #FF5722;
-    --accent-color: #FF9800;
-    --background-color: #121212;
-    --text-color: #E0E0E0;
-    --light-text: #FFFFFF;
-    --error-color: #FF5252;
-    --success-color: #69F0AE;
-    --border-color: #424242;
-    --message-bg: #1E1E1E;
-    --input-border: #424242;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-}
-
+/* Genel Stiller */
 body {
+    font-family: 'Roboto', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
+    margin: 0;
+    padding: 0;
     line-height: 1.6;
 }
 
@@ -58,60 +26,125 @@ body {
     padding: 20px;
 }
 
+/* Header */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
     border-bottom: 2px solid var(--primary-color);
-    margin-bottom: 30px;
-}
-
-header h1 {
-    color: var(--primary-color);
-    font-size: 2.5rem;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
-.btn {
-    background-color: var(--primary-color);
-    color: var(--light-text);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+#profile-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 2px solid var(--primary-color);
 }
 
-.btn:hover {
-    background-color: var(--secondary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+#header-profile-pic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.btn.cancel {
-    background-color: #CCCCCC;
+/* Profil Container */
+.profile-container {
+    background-color: var(--card-color);
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.avatar-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+}
+
+#profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#profile-avatar:hover {
+    opacity: 0.8;
+}
+
+/* İstatistikler */
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 30px 0;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-card {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-label {
     color: var(--text-color);
+    font-size: 0.9rem;
 }
 
-.btn.cancel:hover {
-    background-color: #999999;
+/* Aktivite Listesi */
+.activity-section {
+    margin-top: 30px;
 }
 
-.hidden {
-    display: none !important;
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
 }
 
-/* Auth Modal Stilleri */
-.auth-modal {
+.activity-icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.activity-text {
+    flex: 1;
+}
+
+.activity-time {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Modal */
+.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -124,393 +157,130 @@ header h1 {
     z-index: 1000;
 }
 
-.auth-content {
-    background-color: white;
+.modal-content {
+    background-color: var(--card-color);
     padding: 30px;
     border-radius: 10px;
-    width: 100%;
-    max-width: 400px;
+    width: 90%;
+    max-width: 500px;
     position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.close-btn {
+.close-modal {
     position: absolute;
     top: 15px;
     right: 15px;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #777;
 }
 
-.auth-content h2 {
-    margin-bottom: 20px;
-    color: var(--primary-color);
-    text-align: center;
-}
-
-.auth-content input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid var(--input-border);
-    border-radius: 5px;
-    font-size: 1rem;
-    background-color: var(--background-color);
-}
-
-.auth-content input:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 127, 17, 0.2);
-}
-
-.error {
-    color: var(--error-color);
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #FFEEEE;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.success {
-    color: var(--success-color);
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #EEFFEE;
-    border-radius: 5px;
-    text-align: center;
-}
-
-/* Profil Sayfası Stilleri */
-.profile-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.profile-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.profile-avatar {
-    width: 150px;
-    height: 150px;
-    margin: 0 auto 20px;
-    position: relative;
-    cursor: pointer;
-}
-
-.profile-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--primary-color);
-    transition: all 0.3s;
-}
-
-.profile-avatar:hover img {
-    opacity: 0.8;
-}
-
-.profile-avatar::after {
-    content: '✏️';
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: var(--primary-color);
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-
-.profile-header h2 {
-    color: var(--primary-color);
-    margin-bottom: 5px;
-    font-size: 1.8rem;
-}
-
-.profile-header p {
-    color: #666;
-    font-size: 1.1rem;
-}
-
-.profile-stats {
-    display: flex;
-    justify-content: space-around;
-    margin: 30px 0;
-    padding: 20px 0;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    display: block;
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.profile-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.recent-activity {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-.recent-activity h3 {
-    margin-bottom: 15px;
-    color: var(--primary-color);
-}
-
-#activity-list {
-    list-style: none;
-}
-
-#activity-list li {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: center;
-}
-
-#activity-list li:last-child {
-    border-bottom: none;
-}
-
-.activity-icon {
-    margin-right: 10px;
-    color: var(--primary-color);
-    font-size: 1.2rem;
-}
-
-/* Klan Sayfası Stilleri */
-.clan-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.clan-controls input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid var(--input-border);
-    border-radius: 5px;
-    font-size: 1rem;
-    background-color: var(--background-color);
-}
-
-#clan-list ul {
-    list-style: none;
-    margin-top: 15px;
-}
-
-#clan-list li {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 5px;
-}
-
-#clan-list li:hover {
-    background-color: var(--message-bg);
-    transform: translateX(5px);
-}
-
-#clan-chat {
-    margin-top: 25px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 20px;
-    background: white;
-}
-
-#messages {
-    height: 400px;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: var(--background-color);
-}
-
-.message {
-    margin-bottom: 12px;
-    padding: 10px 15px;
-    background-color: var(--message-bg);
-    border-radius: 15px;
-    display: inline-block;
-    max-width: 70%;
-    border: 1px solid var(--border-color);
-}
-
-.message.sent {
-    background-color: var(--primary-color);
-    color: white;
-    float: right;
-    border: none;
-}
-
-.message-input {
-    display: flex;
-    gap: 10px;
-}
-
-.message-input input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid var(--input-border);
-    border-radius: 5px;
-    font-size: 1rem;
-    background-color: var(--background-color);
-}
-
-/* Tema Butonları */
-.theme-buttons {
-    display: flex;
-    gap: 8px;
-}
-
-.theme-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid white;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.theme-btn:hover {
-    transform: scale(1.1);
-}
-
-.theme-btn.active {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-.theme-btn.orange {
-    background-color: #FF7F11;
-}
-
-.theme-btn.green {
-    background-color: #2E7D32;
-}
-
-.theme-btn.dark {
-    background-color: #121212;
-}
-
-/* Profil Resmi */
-#profile-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    cursor: pointer;
-    border: 2px solid var(--primary-color);
-}
-
-#profile-btn img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-picture-container {
+.avatar-upload-container {
     text-align: center;
     margin-bottom: 20px;
 }
 
 #profile-picture-preview {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--primary-color);
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
 }
 
-#profile-picture-upload {
-    display: none;
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Dark tema için özel stiller */
-.dark-theme .auth-content,
-.dark-theme .profile-container,
-.dark-theme #clan-chat {
-    background-color: #1E1E1E;
+.primary {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+}
+
+.secondary {
+    background-color: #f0f0f0;
     color: var(--text-color);
 }
 
-.dark-theme .recent-activity {
-    background-color: #2D2D2D;
+.small {
+    padding: 8px 15px;
+    font-size: 0.9rem;
 }
 
-.dark-theme #clan-list li:hover {
-    background-color: #2D2D2D;
+.full-width {
+    width: 100%;
+    margin: 10px 0;
 }
 
-.dark-theme .profile-header p,
-.dark-theme .stat-label {
-    color: #aaa;
+/* Toast Mesajı */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 5px;
+    z-index: 1001;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* Responsive Tasarım */
 @media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-    
-    header {
+    .profile-stats {
         flex-direction: column;
         gap: 15px;
     }
     
-    .header-controls {
-        flex-direction: column;
-        gap: 15px;
+    .modal-content {
+        width: 95%;
+        padding: 20px;
     }
     
-    .profile-actions {
-        flex-direction: column;
-    }
-    
-    .clan-controls {
-        flex-direction: column;
-    }
-    
-    #messages {
-        height: 300px;
+    #profile-picture-preview {
+        width: 100px;
+        height: 100px;
     }
 }
