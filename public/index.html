@@ -19,141 +19,96 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
+    <title>Quastid - Heart of Kairas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
 <body>
     <div class="container">
         <header>
             <h1>Quastid</h1>
             <div class="header-controls">
-                <div class="theme-buttons">
-                    <button class="theme-btn orange active" data-theme="orange"></button>
-                    <button class="theme-btn green" data-theme="green"></button>
-                    <button class="theme-btn dark" data-theme="dark"></button>
+                <div id="profile-btn" class="hidden">
+                    <img id="header-profile-pic" src="images/default-profile.png" alt="Profil">
                 </div>
-                <div id="auth-buttons">
-                    <button id="login-btn" class="btn">Giriş Yap</button>
-                    <button id="register-btn" class="btn">Kayıt Ol</button>
-                    <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
-                    <div id="profile-btn" class="hidden">
-                        <img id="profile-pic" src="images/default-profile.png" alt="Profil">
-                    </div>
-                </div>
+                <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
             </div>
         </header>
 
-        <!-- Giriş Formu -->
-        <div id="login-form" class="auth-modal hidden">
-            <div class="auth-content">
-                <span class="close-btn">&times;</span>
-                <h2>Giriş Yap</h2>
-                <div id="login-error" class="error hidden"></div>
-                <input type="email" id="login-email" placeholder="E-posta">
-                <input type="password" id="login-password" placeholder="Şifre">
-                <button id="submit-login" class="btn">Giriş Yap</button>
-            </div>
-        </div>
-
-        <!-- Kayıt Formu -->
-        <div id="register-form" class="auth-modal hidden">
-            <div class="auth-content">
-                <span class="close-btn">&times;</span>
-                <h2>Kayıt Ol</h2>
-                <div id="register-error" class="error hidden"></div>
-                <input type="text" id="register-username" placeholder="Kullanıcı Adı">
-                <input type="email" id="register-email" placeholder="E-posta">
-                <input type="password" id="register-password" placeholder="Şifre (en az 6 karakter)">
-                <button id="submit-register" class="btn">Kayıt Ol</button>
-            </div>
-        </div>
-
-        <!-- Profil Düzenleme -->
-        <div id="profile-modal" class="auth-modal hidden">
-            <div class="auth-content">
-                <span class="close-btn">&times;</span>
-                <h2>Profilimi Düzenle</h2>
-                <div id="profile-error" class="error hidden"></div>
-                <div class="profile-picture-container">
-                    <img id="profile-picture-preview" src="images/default-profile.png" alt="Profil Resmi">
+        <!-- Profil Düzenleme Modalı -->
+        <div id="profile-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Profili Düzenle</h2>
+                
+                <div class="avatar-upload-container">
+                    <img id="profile-picture-preview" src="images/default-profile.png" alt="Profil Önizleme">
                     <input type="file" id="profile-picture-upload" accept="image/*">
+                    <button id="change-avatar-btn" class="btn small">Resmi Değiştir</button>
                 </div>
-                <input type="text" id="profile-username" placeholder="Kullanıcı Adı">
-                <input type="email" id="profile-email" placeholder="E-posta">
-                <input type="password" id="profile-password" placeholder="Yeni Şifre (boş bırakabilirsiniz)">
-                <button id="save-profile" class="btn">Değişiklikleri Kaydet</button>
+                
+                <div class="form-group">
+                    <label for="username-input">Kullanıcı Adı</label>
+                    <input type="text" id="username-input" placeholder="Yeni kullanıcı adı">
+                </div>
+                
+                <div class="form-actions">
+                    <button id="save-profile-btn" class="btn primary">Kaydet</button>
+                    <button id="cancel-edit-btn" class="btn secondary">İptal</button>
+                </div>
             </div>
         </div>
 
-        <main id="main-content" class="hidden">
-            <!-- Profil Sayfası -->
+        <main>
             <div class="profile-container">
                 <div class="profile-header">
-                    <div class="profile-avatar">
-                        <img id="profile-avatar-img" src="images/default-profile.png" alt="Profil Resmi">
+                    <div class="avatar-container">
+                        <img id="profile-avatar" src="images/default-profile.png" alt="Profil Resmi">
                         <input type="file" id="avatar-upload" accept="image/*" class="hidden">
                     </div>
-                    <h2 id="profile-username">Kullanıcı Adı</h2>
-                    <p id="profile-email">email@example.com</p>
+                    <h2 id="display-username">KullanıcıAdı</h2>
+                    <p id="user-email">email@example.com</p>
                 </div>
-
+                
                 <div class="profile-stats">
-                    <div class="stat-item">
-                        <span class="stat-number" id="clan-count">0</span>
+                    <div class="stat-card">
+                        <span class="stat-value" id="clan-count">0</span>
                         <span class="stat-label">Klan</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="message-count">0</span>
+                    <div class="stat-card">
+                        <span class="stat-value" id="message-count">0</span>
                         <span class="stat-label">Mesaj</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="member-since">-</span>
-                        <span class="stat-label">Üyelik Tarihi</span>
+                    <div class="stat-card">
+                        <span class="stat-value" id="member-since">2023</span>
+                        <span class="stat-label">Üyelik</span>
                     </div>
                 </div>
-
-                <div class="profile-actions">
-                    <button id="edit-profile-btn" class="btn">Profili Düzenle</button>
-                    <button id="my-clans-btn" class="btn">Klanlarım</button>
-                </div>
-
-                <div class="recent-activity">
+                
+                <button id="edit-profile-btn" class="btn full-width">Profili Düzenle</button>
+                
+                <div class="activity-section">
                     <h3>Son Aktivite</h3>
                     <ul id="activity-list">
-                        <li>Henüz aktivite yok</li>
+                        <li class="activity-item">
+                            <span class="activity-icon">💬</span>
+                            <span class="activity-text">KlanAdı'na mesaj gönderdi</span>
+                            <span class="activity-time">2 gün önce</span>
+                        </li>
                     </ul>
-                </div>
-            </div>
-
-            <!-- Klan Sayfası (Başlangıçta gizli) -->
-            <div id="clan-section" class="hidden">
-                <div class="clan-controls">
-                    <input type="text" id="clan-name" placeholder="Klan Adı">
-                    <button id="create-clan" class="btn">Klan Kur</button>
-                    <button id="join-clan" class="btn">Klanlara Katıl</button>
-                </div>
-
-                <div id="clan-list" class="hidden">
-                    <h3>Klanlar</h3>
-                    <ul id="clans"></ul>
-                </div>
-
-                <div id="clan-chat" class="hidden">
-                    <h3 id="current-clan-name">Klan Sohbeti</h3>
-                    <div id="messages"></div>
-                    <div class="message-input">
-                        <input type="text" id="message-input" placeholder="Mesaj yaz...">
-                        <button id="send-message" class="btn">Gönder</button>
-                    </div>
                 </div>
             </div>
         </main>
 
-        <footer>
-            <p>© 2023 Quastid - Tüm hakları saklıdır</p>
-        </footer>
+        <div id="toast" class="toast hidden"></div>
     </div>
 
-    <script src="js/main.js"></script>
+    <!-- Firebase ve Uygulama JS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/profile.js"></script>
-    <script src="js/clan.js"></script>
 </body>
 </html>
