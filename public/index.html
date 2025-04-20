@@ -17,12 +17,18 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Quastid</h1>
             <div class="header-controls">
+                <div class="theme-buttons">
+                    <button class="theme-btn orange active" data-theme="orange"></button>
+                    <button class="theme-btn green" data-theme="green"></button>
+                    <button class="theme-btn dark" data-theme="dark"></button>
+                </div>
                 <div id="auth-buttons">
                     <button id="login-btn" class="btn">Giriş Yap</button>
                     <button id="register-btn" class="btn">Kayıt Ol</button>
@@ -77,12 +83,67 @@
         </div>
 
         <main id="main-content" class="hidden">
-            <!-- Ana içerik burada olacak -->
-            <div class="welcome-message">
-                <h2 id="welcome-text">Hoş geldiniz, <span id="display-name"></span>!</h2>
+            <!-- Profil Sayfası -->
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img id="profile-avatar-img" src="images/default-profile.png" alt="Profil Resmi">
+                        <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                    </div>
+                    <h2 id="profile-username">Kullanıcı Adı</h2>
+                    <p id="profile-email">email@example.com</p>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="clan-count">0</span>
+                        <span class="stat-label">Klan</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="message-count">0</span>
+                        <span class="stat-label">Mesaj</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="member-since">-</span>
+                        <span class="stat-label">Üyelik Tarihi</span>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button id="edit-profile-btn" class="btn">Profili Düzenle</button>
+                    <button id="my-clans-btn" class="btn">Klanlarım</button>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Son Aktivite</h3>
+                    <ul id="activity-list">
+                        <li>Henüz aktivite yok</li>
+                    </ul>
+                </div>
             </div>
-            
-            <!-- Klan bölümü buraya gelecek -->
+
+            <!-- Klan Sayfası (Başlangıçta gizli) -->
+            <div id="clan-section" class="hidden">
+                <div class="clan-controls">
+                    <input type="text" id="clan-name" placeholder="Klan Adı">
+                    <button id="create-clan" class="btn">Klan Kur</button>
+                    <button id="join-clan" class="btn">Klanlara Katıl</button>
+                </div>
+
+                <div id="clan-list" class="hidden">
+                    <h3>Klanlar</h3>
+                    <ul id="clans"></ul>
+                </div>
+
+                <div id="clan-chat" class="hidden">
+                    <h3 id="current-clan-name">Klan Sohbeti</h3>
+                    <div id="messages"></div>
+                    <div class="message-input">
+                        <input type="text" id="message-input" placeholder="Mesaj yaz...">
+                        <button id="send-message" class="btn">Gönder</button>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <footer>
@@ -90,8 +151,9 @@
         </footer>
     </div>
 
+    <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/profile.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/clan.js"></script>
 </body>
 </html>
