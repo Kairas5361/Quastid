@@ -1,11 +1,11 @@
 // Firebase yapılandırması
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyC00q6G-85SykNhWF9MvP_qGm8jDoQiXps",
+    authDomain: "quastidd.firebaseapp.com",
+    projectId: "https://quastidd-default-rtdb.firebaseio.com",
+    storageBucket: "quastidd.firebasestorage.app",
+    messagingSenderId: "998463462176",
+    appId: "1:998463462176:web:8b659bf9ee4ddf9633d545"
 };
 
 // Firebase'i başlat
