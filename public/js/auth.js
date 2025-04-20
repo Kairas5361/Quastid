@@ -1,5 +1,3 @@
-// Firebase Authentication İşlemleri
-
 // Giriş Formu İşlemleri
 document.getElementById('login-btn').addEventListener('click', () => {
     document.getElementById('login-form').classList.remove('hidden');
@@ -13,23 +11,11 @@ document.getElementById('register-btn').addEventListener('click', () => {
 document.querySelectorAll('.close-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         this.closest('.auth-modal').classList.add('hidden');
-        clearErrors();
+        document.querySelectorAll('.error').forEach(el => {
+            el.classList.add('hidden');
+        });
     });
 });
-
-// Hataları Temizleme
-function clearErrors() {
-    document.querySelectorAll('.error').forEach(el => {
-        el.classList.add('hidden');
-    });
-}
-
-// Hata Gösterme
-function showError(modalId, message) {
-    const errorElement = document.getElementById(`${modalId}-error`);
-    errorElement.textContent = message;
-    errorElement.classList.remove('hidden');
-}
 
 // Kayıt İşlemi
 document.getElementById('submit-register').addEventListener('click', async () => {
@@ -61,7 +47,11 @@ document.getElementById('submit-register').addEventListener('click', async () =>
         
         // Başarılı kayıt
         document.getElementById('register-form').classList.add('hidden');
-        clearForm('register');
+        document.getElementById('register-username').value = '';
+        document.getElementById('register-email').value = '';
+        document.getElementById('register-password').value = '';
+        document.getElementById('register-error').classList.add('hidden');
+        
         alert('Kayıt başarılı! Giriş yapabilirsiniz.');
         
     } catch (error) {
@@ -83,24 +73,20 @@ document.getElementById('submit-login').addEventListener('click', async () => {
     try {
         await firebase.auth().signInWithEmailAndPassword(email, password);
         document.getElementById('login-form').classList.add('hidden');
-        clearForm('login');
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-error').classList.add('hidden');
     } catch (error) {
         console.error('Giriş hatası:', error);
         showError('login', error.message);
     }
 });
 
-// Formları Temizleme
-function clearForm(formType) {
-    if (formType === 'login') {
-        document.getElementById('login-email').value = '';
-        document.getElementById('login-password').value = '';
-    } else if (formType === 'register') {
-        document.getElementById('register-username').value = '';
-        document.getElementById('register-email').value = '';
-        document.getElementById('register-password').value = '';
-    }
-    clearErrors();
+// Hata Gösterme
+function showError(modalId, message) {
+    const errorElement = document.getElementById(`${modalId}-error`);
+    errorElement.textContent = message;
+    errorElement.classList.remove('hidden');
 }
 
 // Kullanıcı Durumunu Dinleme
@@ -110,6 +96,8 @@ firebase.auth().onAuthStateChanged(user => {
     const logoutBtn = document.getElementById('logout-btn');
     const profileBtn = document.getElementById('profile-btn');
     const mainContent = document.getElementById('main-content');
+    const clanSection = document.getElementById('clan-section');
+    const profileContainer = document.querySelector('.profile-container');
     
     if (user) {
         // Kullanıcı giriş yapmış
@@ -119,8 +107,13 @@ firebase.auth().onAuthStateChanged(user => {
         profileBtn.classList.remove('hidden');
         mainContent.classList.remove('hidden');
         
+        // Profil sayfasını göster, klan sayfasını gizle
+        profileContainer.classList.remove('hidden');
+        if (clanSection) clanSection.classList.add('hidden');
+        
         // Kullanıcı bilgilerini yükle
         loadUserProfile(user.uid);
+        
     } else {
         // Kullanıcı giriş yapmamış
         loginBtn.classList.remove('hidden');
@@ -146,8 +139,28 @@ async function loadUserProfile(userId) {
         const userDoc = await firebase.firestore().collection('users').doc(userId).get();
         if (userDoc.exists) {
             const userData = userDoc.data();
-            document.getElementById('display-name').textContent = userData.username;
-            document.getElementById('profile-pic').src = userData.profilePicture;
+            
+            // Profil bilgilerini güncelle
+            document.getElementById('profile-pic').src = userData.profilePicture || 'images/default-profile.png';
+            
+            // Profil sayfası varsa onu da güncelle
+            if (document.getElementById('profile-avatar-img')) {
+                document.getElementById('profile-avatar-img').src = userData.profilePicture || 'images/default-profile.png';
+                document.getElementById('profile-username').textContent = userData.username;
+                document.getElementById('profile-email').textContent = userData.email;
+                
+                // Üyelik tarihini formatla
+                if (userData.createdAt) {
+                    const joinDate = userData.createdAt.toDate();
+                    document.getElementById('member-since').textContent = joinDate.toLocaleDateString('tr-TR');
+                }
+                
+                // İstatistikleri yükle
+                loadProfileStats(userId);
+                
+                // Son aktiviteleri yükle
+                loadRecentActivity(userId);
+            }
         }
     } catch (error) {
         console.error('Profil yükleme hatası:', error);
