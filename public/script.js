@@ -1,3 +1,5 @@
+import { ClanService, UserService, Utils } from './data.js';
+
 // Uygulama Kontrolcüsü
 const App = {
     // Uygulama durumu
@@ -5,7 +7,8 @@ const App = {
         currentUser: null,
         currentClan: null,
         clans: [],
-        users: []
+        messages: [],
+        users: {}
     },
 
     // DOM elementleri
@@ -59,299 +62,10 @@ const App = {
 
     // Uygulama başlatma
     init: function() {
-        this.loadData();
-        this.checkAuth();
         this.setupEventListeners();
+        this.setupAuthListener();
+        this.setupClansListener();
         this.renderHomePage();
-    },
-
-    // Verileri yükle
-    loadData: function() {
-        this.state.clans = this.getClans();
-        this.state.users = this.getUsers();
-    },
-
-    // LocalStorage işlemleri
-    getClans: function() {
-        const storedClans = localStorage.getItem('clans');
-        return storedClans ? JSON.parse(storedClans) : sampleClans;
-    },
-
-    getUsers: function() {
-        const storedUsers = localStorage.getItem('users');
-        return storedUsers ? JSON.parse(storedUsers) : sampleUsers;
-    },
-
-    saveClans: function() {
-        localStorage.setItem('clans', JSON.stringify(this.state.clans));
-    },
-
-    saveUsers: function() {
-        localStorage.setItem('users', JSON.stringify(this.state.users));
-    },
-
-    // Auth işlemleri
-    checkAuth: function() {
-        const user = localStorage.getItem('currentUser');
-        if (user) {
-            this.state.currentUser = JSON.parse(user);
-            this.updateAuthUI();
-        }
-    },
-
-    updateAuthUI: function() {
-        const { currentUser } = this.state;
-        const { 
-            loginBtn, registerBtn, logoutBtn, 
-            usernameDisplay, createClanLink 
-        } = this.elements;
-
-        if (currentUser) {
-            loginBtn.classList.add('hidden');
-            registerBtn.classList.add('hidden');
-            logoutBtn.classList.remove('hidden');
-            usernameDisplay.classList.remove('hidden');
-            usernameDisplay.textContent = currentUser.username;
-            createClanLink.classList.remove('hidden');
-        } else {
-            loginBtn.classList.remove('hidden');
-            registerBtn.classList.remove('hidden');
-            logoutBtn.classList.add('hidden');
-            usernameDisplay.classList.add('hidden');
-            createClanLink.classList.add('hidden');
-        }
-    },
-
-    registerUser: function(username, email, password) {
-        const { users } = this.state;
-        
-        if (users.some(user => user.username === username)) {
-            return { success: false, message: 'Bu kullanıcı adı zaten alınmış.' };
-        }
-        
-        if (users.some(user => user.email === email)) {
-            return { success: false, message: 'Bu email adresi zaten kayıtlı.' };
-        }
-        
-        const newUser = { username, email, password };
-        this.state.users.push(newUser);
-        this.saveUsers();
-        
-        return { success: true, user: newUser };
-    },
-
-    loginUser: function(username, password) {
-        const { users } = this.state;
-        const user = users.find(u => u.username === username && u.password === password);
-        
-        if (!user) {
-            return { success: false, message: 'Kullanıcı adı veya şifre hatalı.' };
-        }
-        
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        this.state.currentUser = user;
-        this.updateAuthUI();
-        
-        return { success: true, user };
-    },
-
-    logoutUser: function() {
-        localStorage.removeItem('currentUser');
-        this.state.currentUser = null;
-        this.updateAuthUI();
-        
-        if (this.elements.clanDetailSection.classList.contains('active-section')) {
-            this.elements.clanChatForm.classList.add('hidden');
-        }
-    },
-
-    // Klan işlemleri
-    createClan: function(name, description, tags) {
-        const { currentUser, clans } = this.state;
-        
-        const newClan = {
-            id: Date.now().toString(),
-            name,
-            description,
-            tags: tags.split(',').map(tag => tag.trim()),
-            createdBy: currentUser.username,
-            createdAt: new Date().toISOString(),
-            members: [currentUser.username],
-            messages: []
-        };
-        
-        clans.push(newClan);
-        this.saveClans();
-        return newClan;
-    },
-
-    joinClan: function(clanId) {
-        const { currentUser, clans } = this.state;
-        const clan = clans.find(c => c.id === clanId);
-        
-        if (!clan || !currentUser) return false;
-        
-        if (!clan.members.includes(currentUser.username)) {
-            clan.members.push(currentUser.username);
-            this.saveClans();
-            return true;
-        }
-        
-        return false;
-    },
-
-    leaveClan: function(clanId) {
-        const { currentUser, clans } = this.state;
-        const clan = clans.find(c => c.id === clanId);
-        
-        if (!clan || !currentUser) return false;
-        
-        clan.members = clan.members.filter(member => member !== currentUser.username);
-        this.saveClans();
-        return true;
-    },
-
-    addMessageToClan: function(clanId, message) {
-        const { currentUser, clans } = this.state;
-        const clan = clans.find(c => c.id === clanId);
-        
-        if (!clan || !currentUser) return false;
-        
-        clan.messages.push({
-            user: currentUser.username,
-            text: message,
-            time: new Date().toISOString()
-        });
-        
-        this.saveClans();
-        return true;
-    },
-
-    // Render işlemleri
-    renderHomePage: function() {
-        this.hideAllSections();
-        this.elements.homeSection.classList.remove('hidden-section');
-        this.elements.homeSection.classList.add('active-section');
-        
-        const trendingClans = this.state.clans.slice(0, 3);
-        this.renderClans(trendingClans, this.elements.trendingClansGrid);
-    },
-
-    renderClansPage: function() {
-        this.hideAllSections();
-        this.elements.clansSection.classList.remove('hidden-section');
-        this.elements.clansSection.classList.add('active-section');
-        
-        this.renderClans(this.state.clans, this.elements.allClansGrid);
-    },
-
-    renderClans: function(clans, container) {
-        container.innerHTML = '';
-        
-        clans.forEach(clan => {
-            const clanCard = document.createElement('div');
-            clanCard.className = 'clan-card';
-            clanCard.innerHTML = `
-                <div class="clan-card-header">
-                    <h3>${clan.name}</h3>
-                    <div class="clan-tags">
-                        ${clan.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                </div>
-                <div class="clan-card-body">
-                    <p class="clan-card-description">${clan.description}</p>
-                </div>
-                <div class="clan-card-footer">
-                    <span><i class="fas fa-users"></i> ${clan.members.length} üye</span>
-                    <button class="btn btn-outline view-clan-btn" data-clan-id="${clan.id}">Detaylar</button>
-                </div>
-            `;
-            container.appendChild(clanCard);
-        });
-        
-        // Klan detay butonlarına event listener ekle
-        document.querySelectorAll('.view-clan-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const clanId = btn.getAttribute('data-clan-id');
-                this.showClanDetail(clanId);
-            });
-        });
-    },
-
-    showClanDetail: function(clanId) {
-        const clan = this.state.clans.find(c => c.id === clanId);
-        if (!clan) return;
-        
-        this.state.currentClan = clan;
-        const { elements } = this;
-        
-        // Klan bilgilerini doldur
-        elements.clanDetailName.textContent = clan.name;
-        elements.clanDetailDescription.textContent = clan.description;
-        elements.clanMemberCount.textContent = clan.members.length;
-        elements.clanCreatedDate.textContent = this.formatDate(clan.createdAt);
-        
-        // Etiketleri doldur
-        elements.clanDetailTags.innerHTML = clan.tags.map(tag => 
-            `<span class="tag">${tag}</span>`
-        ).join('');
-        
-        // Üyeleri doldur
-        elements.clanMembersList.innerHTML = clan.members.map(member => `
-            <li>
-                <div class="user-avatar">${member.charAt(0).toUpperCase()}</div>
-                <span>${member}</span>
-            </li>
-        `).join('');
-        
-        // Mesajları doldur
-        elements.clanChatMessages.innerHTML = clan.messages.map(msg => `
-            <div class="message">
-                <div class="message-header">
-                    <span class="message-user">${msg.user}</span>
-                    <span class="message-time">${this.formatTime(msg.time)}</span>
-                </div>
-                <div class="message-content">${msg.text}</div>
-            </div>
-        `).join('');
-        
-        // Kullanıcı giriş yapmışsa sohbet formunu göster
-        if (this.state.currentUser) {
-            elements.clanChatForm.classList.remove('hidden');
-            
-            // Kullanıcı klan üyesi mi kontrol et
-            const isMember = clan.members.includes(this.state.currentUser.username);
-            elements.joinClanBtn.classList.toggle('hidden', isMember);
-            elements.leaveClanBtn.classList.toggle('hidden', !isMember);
-        } else {
-            elements.clanChatForm.classList.add('hidden');
-        }
-        
-        // Bölümleri değiştir
-        this.hideAllSections();
-        elements.clanDetailSection.classList.remove('hidden-section');
-        elements.clanDetailSection.classList.add('active-section');
-        
-        // Mesajları en alta kaydır
-        elements.clanChatMessages.scrollTop = elements.clanChatMessages.scrollHeight;
-    },
-
-    hideAllSections: function() {
-        document.querySelectorAll('main section').forEach(section => {
-            section.classList.add('hidden-section');
-            section.classList.remove('active-section');
-        });
-    },
-
-    // Yardımcı fonksiyonlar
-    formatDate: function(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('tr-TR');
-    },
-
-    formatTime: function(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
     },
 
     // Event listener'ları kur
@@ -372,9 +86,7 @@ const App = {
         elements.createClanLink.addEventListener('click', (e) => {
             e.preventDefault();
             if (!this.state.currentUser) return;
-            this.hideAllSections();
-            elements.createClanSection.classList.remove('hidden-section');
-            elements.createClanSection.classList.add('active-section');
+            this.showCreateClanPage();
         });
         
         elements.exploreClansBtn.addEventListener('click', (e) => {
@@ -382,7 +94,7 @@ const App = {
             this.renderClansPage();
         });
         
-        // Auth Butonları
+        // Auth Buttons
         elements.loginBtn.addEventListener('click', () => {
             elements.loginModal.classList.remove('hidden');
         });
@@ -413,70 +125,71 @@ const App = {
             }
         });
         
-        // Form Submitleri
-        elements.loginForm.addEventListener('submit', (e) => {
+        // Forms
+        elements.loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = elements.loginForm.querySelector('#login-username').value;
-            const password = elements.loginForm.querySelector('#login-password').value;
+            const email = e.target.querySelector('#login-email').value;
+            const password = e.target.querySelector('#login-password').value;
             
-            const result = this.loginUser(username, password);
+            const result = await UserService.login(email, password);
             if (result.success) {
                 elements.loginModal.classList.add('hidden');
-                elements.loginForm.reset();
-                
-                // Eğer klan detay sayfasındaysak sohbet formunu göster
-                if (elements.clanDetailSection.classList.contains('active-section')) {
-                    elements.clanChatForm.classList.remove('hidden');
-                }
+                e.target.reset();
+                this.updateAuthUI();
             } else {
                 alert(result.message);
             }
         });
         
-        elements.registerForm.addEventListener('submit', (e) => {
+        elements.registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = elements.registerForm.querySelector('#register-username').value;
-            const email = elements.registerForm.querySelector('#register-email').value;
-            const password = elements.registerForm.querySelector('#register-password').value;
-            const confirmPassword = elements.registerForm.querySelector('#register-confirm-password').value;
+            const email = e.target.querySelector('#register-email').value;
+            const password = e.target.querySelector('#register-password').value;
+            const username = e.target.querySelector('#register-username').value;
+            const confirmPassword = e.target.querySelector('#register-confirm-password').value;
             
             if (password !== confirmPassword) {
                 alert('Şifreler eşleşmiyor!');
                 return;
             }
             
-            const result = this.registerUser(username, email, password);
+            const result = await UserService.register(email, password, username);
             if (result.success) {
-                this.loginUser(username, password);
                 elements.registerModal.classList.add('hidden');
-                elements.registerForm.reset();
+                e.target.reset();
+                this.updateAuthUI();
             } else {
                 alert(result.message);
             }
         });
         
-        elements.createClanForm.addEventListener('submit', (e) => {
+        elements.createClanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!this.state.currentUser) return;
             
-            const name = elements.createClanForm.querySelector('#clan-name').value;
-            const description = elements.createClanForm.querySelector('#clan-description').value;
-            const tags = elements.createClanForm.querySelector('#clan-tags').value;
+            const name = e.target.querySelector('#clan-name').value;
+            const description = e.target.querySelector('#clan-description').value;
+            const tags = e.target.querySelector('#clan-tags').value;
             
-            const newClan = this.createClan(name, description, tags);
+            const newClan = await ClanService.createClan({
+                name,
+                description,
+                tags: tags.split(',').map(tag => tag.trim()),
+                createdBy: this.state.currentUser.uid
+            });
+            
             this.showClanDetail(newClan.id);
-            elements.createClanForm.reset();
+            e.target.reset();
         });
         
-        elements.clanChatForm.addEventListener('submit', (e) => {
+        elements.clanChatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!this.state.currentUser || !this.state.currentClan) return;
             
             const message = elements.clanChatInput.value.trim();
             if (message) {
-                this.addMessageToClan(this.state.currentClan.id, message);
+                await ClanService.addMessage(this.state.currentClan.id, message);
                 elements.clanChatInput.value = '';
-                this.showClanDetail(this.state.currentClan.id); // Mesaj listesini yenile
             }
         });
         
@@ -486,25 +199,258 @@ const App = {
             const filteredClans = this.state.clans.filter(clan => 
                 clan.name.toLowerCase().includes(searchTerm) || 
                 clan.description.toLowerCase().includes(searchTerm) ||
-                clan.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                (clan.tags && clan.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
             );
             
             this.renderClans(filteredClans, elements.allClansGrid);
         });
         
         // Klan detay sayfası butonları
-        elements.joinClanBtn.addEventListener('click', () => {
+        elements.joinClanBtn.addEventListener('click', async () => {
             if (!this.state.currentUser || !this.state.currentClan) return;
             
-            this.joinClan(this.state.currentClan.id);
+            await ClanService.joinClan(this.state.currentClan.id, this.state.currentUser.uid);
             this.showClanDetail(this.state.currentClan.id);
         });
         
-        elements.leaveClanBtn.addEventListener('click', () => {
+        elements.leaveClanBtn.addEventListener('click', async () => {
             if (!this.state.currentUser || !this.state.currentClan) return;
             
-            this.leaveClan(this.state.currentClan.id);
+            await ClanService.leaveClan(this.state.currentClan.id, this.state.currentUser.uid);
             this.showClanDetail(this.state.currentClan.id);
+        });
+    },
+
+    // Auth dinleyicisi
+    setupAuthListener: function() {
+        UserService.onAuthStateChanged(async (user) => {
+            if (user) {
+                this.state.currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            } else {
+                this.state.currentUser = null;
+                localStorage.removeItem('currentUser');
+            }
+            this.updateAuthUI();
+        });
+    },
+
+    // Klan dinleyicisi
+    setupClansListener: function() {
+        ClanService.setupClansListener((clans) => {
+            this.state.clans = clans;
+            
+            // Eğer klanlar sayfası açıksa güncelle
+            if (this.elements.clansSection.classList.contains('active-section')) {
+                this.renderClans(clans, this.elements.allClansGrid);
+            }
+            
+            // Eğer ana sayfa açıksa popüler klanları güncelle
+            if (this.elements.homeSection.classList.contains('active-section')) {
+                this.renderClans(clans.slice(0, 3), this.elements.trendingClansGrid);
+            }
+            
+            // Eğer klan detay sayfası açıksa ve mevcut klan güncellendiyse
+            if (this.state.currentClan && this.elements.clanDetailSection.classList.contains('active-section')) {
+                const updatedClan = clans.find(c => c.id === this.state.currentClan.id);
+                if (updatedClan) {
+                    this.state.currentClan = updatedClan;
+                    this.updateClanDetailUI();
+                }
+            }
+        });
+    },
+
+    // Kullanıcı çıkışı
+    logoutUser: async function() {
+        await UserService.logout();
+        this.state.currentUser = null;
+        this.updateAuthUI();
+        
+        if (this.elements.clanDetailSection.classList.contains('active-section')) {
+            this.elements.clanChatForm.classList.add('hidden');
+        }
+    },
+
+    // Auth UI güncelleme
+    updateAuthUI: function() {
+        const { currentUser } = this.state;
+        const { 
+            loginBtn, registerBtn, logoutBtn, 
+            usernameDisplay, createClanLink 
+        } = this.elements;
+
+        if (currentUser) {
+            loginBtn.classList.add('hidden');
+            registerBtn.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+            usernameDisplay.classList.remove('hidden');
+            usernameDisplay.textContent = currentUser.username;
+            createClanLink.classList.remove('hidden');
+        } else {
+            loginBtn.classList.remove('hidden');
+            registerBtn.classList.remove('hidden');
+            logoutBtn.classList.add('hidden');
+            usernameDisplay.classList.add('hidden');
+            createClanLink.classList.add('hidden');
+        }
+    },
+
+    // Sayfa render fonksiyonları
+    renderHomePage: function() {
+        this.hideAllSections();
+        this.elements.homeSection.classList.remove('hidden-section');
+        this.elements.homeSection.classList.add('active-section');
+        
+        const trendingClans = this.state.clans.slice(0, 3);
+        this.renderClans(trendingClans, this.elements.trendingClansGrid);
+    },
+
+    renderClansPage: function() {
+        this.hideAllSections();
+        this.elements.clansSection.classList.remove('hidden-section');
+        this.elements.clansSection.classList.add('active-section');
+        this.renderClans(this.state.clans, this.elements.allClansGrid);
+    },
+
+    showCreateClanPage: function() {
+        this.hideAllSections();
+        this.elements.createClanSection.classList.remove('hidden-section');
+        this.elements.createClanSection.classList.add('active-section');
+    },
+
+    // Klan listesi render
+    renderClans: function(clans, container) {
+        container.innerHTML = '';
+        
+        clans.forEach(clan => {
+            const isMember = this.state.currentUser && clan.members && clan.members[this.state.currentUser.uid];
+            
+            const clanCard = document.createElement('div');
+            clanCard.className = 'clan-card';
+            clanCard.innerHTML = `
+                <div class="clan-card-header">
+                    <h3>${clan.name}</h3>
+                    <div class="clan-tags">
+                        ${clan.tags ? clan.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
+                    </div>
+                </div>
+                <div class="clan-card-body">
+                    <p class="clan-card-description">${clan.description}</p>
+                </div>
+                <div class="clan-card-footer">
+                    <span><i class="fas fa-users"></i> ${clan.members ? Object.keys(clan.members).length : 0} üye</span>
+                    <button class="btn btn-outline view-clan-btn" data-clan-id="${clan.id}">Detaylar</button>
+                    ${isMember ? '<span class="member-badge">Üyesiniz</span>' : ''}
+                </div>
+            `;
+            container.appendChild(clanCard);
+        });
+        
+        // Klan detay butonlarına event listener ekle
+        document.querySelectorAll('.view-clan-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const clanId = btn.getAttribute('data-clan-id');
+                this.showClanDetail(clanId);
+            });
+        });
+    },
+
+    // Klan detay sayfası
+    async showClanDetail(clanId) {
+        const clan = await ClanService.getClanById(clanId);
+        if (!clan) return;
+        
+        this.state.currentClan = clan;
+        this.updateClanDetailUI();
+        
+        // Mesaj dinleyicisini kur
+        ClanService.setupMessagesListener(clanId, (messages) => {
+            this.state.messages = messages;
+            this.renderMessages(messages);
+        });
+        
+        // Üyeleri yükle
+        this.loadClanMembers(clan);
+        
+        // Bölümleri değiştir
+        this.hideAllSections();
+        this.elements.clanDetailSection.classList.remove('hidden-section');
+        this.elements.clanDetailSection.classList.add('active-section');
+    },
+
+    // Klan detay UI güncelleme
+    updateClanDetailUI: function() {
+        const { currentClan, currentUser } = this.state;
+        const { elements } = this;
+        
+        elements.clanDetailName.textContent = currentClan.name;
+        elements.clanDetailDescription.textContent = currentClan.description;
+        elements.clanMemberCount.textContent = currentClan.members ? Object.keys(currentClan.members).length : 0;
+        elements.clanCreatedDate.textContent = Utils.formatDate(currentClan.createdAt);
+        
+        // Etiketleri doldur
+        elements.clanDetailTags.innerHTML = currentClan.tags ? 
+            currentClan.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+        
+        // Kullanıcı giriş yapmışsa sohbet formunu göster
+        if (currentUser) {
+            elements.clanChatForm.classList.remove('hidden');
+            
+            // Kullanıcı klan üyesi mi kontrol et
+            const isMember = currentClan.members && currentClan.members[currentUser.uid];
+            elements.joinClanBtn.classList.toggle('hidden', isMember);
+            elements.leaveClanBtn.classList.toggle('hidden', !isMember);
+        } else {
+            elements.clanChatForm.classList.add('hidden');
+        }
+    },
+
+    // Mesajları render et
+    renderMessages: function(messages) {
+        const { currentUser } = this.state;
+        const { clanChatMessages } = this.elements;
+        
+        clanChatMessages.innerHTML = messages.map(msg => `
+            <div class="message ${msg.userId === currentUser?.uid ? 'own-message' : ''}">
+                <div class="message-header">
+                    <span class="message-user">${msg.userEmail || 'Anonim'}</span>
+                    <span class="message-time">${Utils.formatTime(msg.timestamp)}</span>
+                </div>
+                <div class="message-content">${msg.text}</div>
+            </div>
+        `).join('');
+        
+        // Mesajları en alta kaydır
+        clanChatMessages.scrollTop = clanChatMessages.scrollHeight;
+    },
+
+    // Klan üyelerini yükle
+    async loadClanMembers(clan) {
+        const { clanMembersList } = this.elements;
+        clanMembersList.innerHTML = '';
+        
+        if (!clan.members) return;
+        
+        for (const userId in clan.members) {
+            const user = await UserService.getUser(userId);
+            if (user) {
+                const memberItem = document.createElement('li');
+                memberItem.innerHTML = `
+                    <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                    <span>${user.username}</span>
+                    ${clan.createdBy === userId ? '<span class="creator-badge">Kurucu</span>' : ''}
+                `;
+                clanMembersList.appendChild(memberItem);
+            }
+        }
+    },
+
+    // Tüm bölümleri gizle
+    hideAllSections: function() {
+        document.querySelectorAll('main section').forEach(section => {
+            section.classList.add('hidden-section');
+            section.classList.remove('active-section');
         });
     }
 };
