@@ -8,34 +8,39 @@ async function loadProfilePage(userId) {
         }
     } catch (error) {
         console.error('Profil yükleme hatası:', error);
-        alert('Profil bilgileri yüklenirken hata oluştu');
+        showToast('Profil bilgileri yüklenirken hata oluştu');
     }
 }
 
 // Profil görünümünü güncelleme
 function updateProfileDisplay(userData) {
     // Avatar ve temel bilgiler
-    document.getElementById('profile-avatar-img').src = userData.profilePicture || 'images/default-profile.png';
-    document.getElementById('profile-username').textContent = userData.username;
-    document.getElementById('profile-email').textContent = userData.email;
-    document.getElementById('profile-pic').src = userData.profilePicture || 'images/default-profile.png';
+    document.getElementById('profile-avatar').src = userData.profilePicture || 'images/default-profile.png';
+    document.getElementById('display-username').textContent = userData.username;
+    document.getElementById('user-email').textContent = userData.email;
+    document.getElementById('header-profile-pic').src = userData.profilePicture || 'images/default-profile.png';
     
     // Üyelik tarihi
     if (userData.createdAt) {
         const joinDate = userData.createdAt.toDate();
-        document.getElementById('member-since').textContent = joinDate.toLocaleDateString('tr-TR');
+        document.getElementById('member-since').textContent = joinDate.getFullYear();
     }
-    
-    // İstatistikleri yükle
-    loadProfileStats(userData.uid || firebase.auth().currentUser.uid);
 }
 
 // Avatar yükleme işlemi
-document.getElementById('profile-avatar-img').addEventListener('click', () => {
+document.getElementById('profile-avatar').addEventListener('click', () => {
     document.getElementById('avatar-upload').click();
 });
 
-document.getElementById('avatar-upload').addEventListener('change', async function(e) {
+// Avatar upload input'u eklenmeli
+const avatarUpload = document.createElement('input');
+avatarUpload.type = 'file';
+avatarUpload.id = 'avatar-upload';
+avatarUpload.accept = 'image/*';
+avatarUpload.classList.add('hidden');
+document.body.appendChild(avatarUpload);
+
+avatarUpload.addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -45,31 +50,19 @@ document.getElementById('avatar-upload').addEventListener('change', async functi
     try {
         // Dosya boyutu kontrolü (max 2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alert('Profil resmi maksimum 2MB boyutunda olabilir');
+            showToast('Profil resmi maksimum 2MB boyutunda olabilir');
             return;
         }
         
         // Resim formatı kontrolü
         if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
-            alert('Sadece JPG, PNG veya GIF formatında resimler yükleyebilirsiniz');
+            showToast('Sadece JPG, PNG veya GIF formatında resimler yükleyebilirsiniz');
             return;
         }
         
-        // Yükleme işlemi başlıyor
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.textContent = 'Yükleniyor...';
-        loadingIndicator.style.position = 'fixed';
-        loadingIndicator.style.top = '50%';
-        loadingIndicator.style.left = '50%';
-        loadingIndicator.style.transform = 'translate(-50%, -50%)';
-        loadingIndicator.style.padding = '20px';
-        loadingIndicator.style.background = 'rgba(0,0,0,0.7)';
-        loadingIndicator.style.color = 'white';
-        loadingIndicator.style.borderRadius = '5px';
-        loadingIndicator.style.zIndex = '1000';
-        document.body.appendChild(loadingIndicator);
+        // Yükleme işlemi
+        showToast('Profil resmi yükleniyor...');
         
-        // Resmi yükle ve URL'yi al
         const storageRef = firebase.storage().ref();
         const fileRef = storageRef.child(`profile_pictures/${user.uid}/${Date.now()}_${file.name}`);
         await fileRef.put(file);
@@ -86,16 +79,15 @@ document.getElementById('avatar-upload').addEventListener('change', async functi
             profilePicture: downloadURL
         });
         
-        document.body.removeChild(loadingIndicator);
         showToast('Profil resmi başarıyla güncellendi!');
         
     } catch (error) {
         console.error('Profil resmi yükleme hatası:', error);
-        alert('Profil resmi güncellenirken hata oluştu: ' + error.message);
+        showToast('Profil resmi güncellenirken hata oluştu');
     }
 });
 
-// Profil adı güncelleme
+// Profil düzenleme butonu
 document.getElementById('edit-profile-btn').addEventListener('click', async () => {
     const user = firebase.auth().currentUser;
     if (!user) return;
@@ -106,7 +98,7 @@ document.getElementById('edit-profile-btn').addEventListener('click', async () =
             const userData = userDoc.data();
             
             // Modal içeriğini doldur
-            document.getElementById('profile-username-input').value = userData.username || '';
+            document.getElementById('username-input').value = userData.username || '';
             document.getElementById('profile-picture-preview').src = userData.profilePicture || 'images/default-profile.png';
             
             // Modalı göster
@@ -114,40 +106,37 @@ document.getElementById('edit-profile-btn').addEventListener('click', async () =
         }
     } catch (error) {
         console.error('Profil açma hatası:', error);
-        alert('Profil bilgileri yüklenirken hata oluştu');
+        showToast('Profil bilgileri yüklenirken hata oluştu');
     }
 });
 
 // Profil bilgilerini kaydetme
-document.getElementById('save-profile').addEventListener('click', async () => {
+document.getElementById('save-profile-btn').addEventListener('click', async () => {
     const user = firebase.auth().currentUser;
     if (!user) return;
     
-    const newUsername = document.getElementById('profile-username-input').value.trim();
-    const newProfilePicture = document.getElementById('profile-picture-preview').src;
+    const newUsername = document.getElementById('username-input').value.trim();
     
     if (!newUsername) {
-        alert('Kullanıcı adı boş bırakılamaz');
+        showToast('Kullanıcı adı boş bırakılamaz');
         return;
     }
     
     try {
-        // Yükleme işlemi başlıyor
-        const saveButton = document.getElementById('save-profile');
+        const saveButton = document.getElementById('save-profile-btn');
         const originalText = saveButton.textContent;
         saveButton.textContent = 'Kaydediliyor...';
         saveButton.disabled = true;
         
         // Firestore'da güncelle
         await firebase.firestore().collection('users').doc(user.uid).update({
-            username: newUsername,
-            profilePicture: newProfilePicture
+            username: newUsername
         });
         
         // Sayfada güncelle
         updateProfileDisplay({
             username: newUsername,
-            profilePicture: newProfilePicture,
+            profilePicture: document.getElementById('profile-picture-preview').src,
             email: user.email,
             createdAt: (await firebase.firestore().collection('users').doc(user.uid).get()).data().createdAt
         });
@@ -158,30 +147,72 @@ document.getElementById('save-profile').addEventListener('click', async () => {
         
     } catch (error) {
         console.error('Profil güncelleme hatası:', error);
-        alert('Profil güncellenirken hata oluştu: ' + error.message);
+        showToast('Profil güncellenirken hata oluştu');
     } finally {
-        saveButton.textContent = originalText;
+        const saveButton = document.getElementById('save-profile-btn');
+        saveButton.textContent = 'Kaydet';
         saveButton.disabled = false;
+    }
+});
+
+// Modal kapatma butonları
+document.querySelector('.close-modal').addEventListener('click', () => {
+    document.getElementById('profile-modal').classList.add('hidden');
+});
+
+document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+    document.getElementById('profile-modal').classList.add('hidden');
+});
+
+// Profil resmi değiştirme butonu
+document.getElementById('change-avatar-btn').addEventListener('click', () => {
+    document.getElementById('profile-picture-upload').click();
+});
+
+document.getElementById('profile-picture-upload').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    
+    try {
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('Profil resmi maksimum 2MB boyutunda olabilir');
+            return;
+        }
+        
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+            showToast('Sadece JPG, PNG veya GIF formatında resimler yükleyebilirsiniz');
+            return;
+        }
+        
+        showToast('Profil resmi yükleniyor...');
+        
+        const storageRef = firebase.storage().ref();
+        const fileRef = storageRef.child(`profile_pictures/${user.uid}/${Date.now()}_${file.name}`);
+        await fileRef.put(file);
+        const downloadURL = await fileRef.getDownloadURL();
+        
+        // Önizlemeyi güncelle
+        document.getElementById('profile-picture-preview').src = downloadURL;
+        
+        showToast('Profil resmi başarıyla yüklendi!');
+        
+    } catch (error) {
+        console.error('Profil resmi yükleme hatası:', error);
+        showToast('Profil resmi yüklenirken hata oluştu');
     }
 });
 
 // Toast mesajı gösterme
 function showToast(message) {
-    const toast = document.createElement('div');
+    const toast = document.getElementById('toast');
     toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.left = '50%';
-    toast.style.transform = 'translateX(-50%)';
-    toast.style.padding = '10px 20px';
-    toast.style.background = 'rgba(0,0,0,0.7)';
-    toast.style.color = 'white';
-    toast.style.borderRadius = '5px';
-    toast.style.zIndex = '1000';
-    document.body.appendChild(toast);
+    toast.classList.remove('hidden');
     
     setTimeout(() => {
-        document.body.removeChild(toast);
+        toast.classList.add('hidden');
     }, 3000);
 }
 
