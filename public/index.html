@@ -2,39 +2,65 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta content="Quastid" property="og:title"/>
-<meta content="A Reddit Alternative" property="og:description"/>
-<meta content="https://quastid.netlify.app" property="og:url"/>
-<meta content="images/quastid.png" property="og:image"/>
-<meta content="#ff4500" data-react-helmet="true" name="theme-color"/>
-<meta name="description" content="A Reddit and Quora Alternative">
-<meta name="keywords" content="HTML, CSS, JavaScript">
-<meta name="author" content="Kairas5361">
-    <title>Quastid - Klan Sohbet</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Quastid" property="og:title"/>
+    <meta content="A Reddit Alternative" property="og:description"/>
+    <meta content="https://quastid.netlify.app" property="og:url"/>
+    <meta content="images/quastid.png" property="og:image"/>
+    <meta content="#ff4500" data-react-helmet="true" name="theme-color"/>
+    <meta name="description" content="A Reddit and Quora Alternative">
+    <meta name="keywords" content="HTML, CSS, JavaScript">
+    <meta name="author" content="Kairas5361">
     <title>Quastid - Heart of Kairas</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="images/icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Firebase script'leri head içinde bir kez olmalı -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Quastid</h1>
             <div class="header-controls">
+                <!-- Giriş/Kayıt butonları eklendi -->
+                <button id="login-btn" class="btn">Giriş Yap</button>
+                <button id="register-btn" class="btn">Kayıt Ol</button>
+                
                 <div id="profile-btn" class="hidden">
                     <img id="header-profile-pic" src="images/default-profile.png" alt="Profil">
                 </div>
                 <button id="logout-btn" class="btn hidden">Çıkış Yap</button>
             </div>
         </header>
+
+        <!-- Giriş Modalı -->
+        <div id="login-form" class="auth-modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Giriş Yap</h2>
+                <input type="email" id="login-email" placeholder="E-posta">
+                <input type="password" id="login-password" placeholder="Şifre">
+                <div id="login-error" class="error hidden"></div>
+                <button id="submit-login" class="btn primary">Giriş Yap</button>
+            </div>
+        </div>
+
+        <!-- Kayıt Modalı -->
+        <div id="register-form" class="auth-modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Kayıt Ol</h2>
+                <input type="text" id="register-username" placeholder="Kullanıcı Adı">
+                <input type="email" id="register-email" placeholder="E-posta">
+                <input type="password" id="register-password" placeholder="Şifre">
+                <div id="register-error" class="error hidden"></div>
+                <button id="submit-register" class="btn primary">Kayıt Ol</button>
+            </div>
+        </div>
 
         <!-- Profil Düzenleme Modalı -->
         <div id="profile-modal" class="modal hidden">
@@ -60,12 +86,11 @@
             </div>
         </div>
 
-        <main>
+        <main id="main-content" class="hidden">
             <div class="profile-container">
                 <div class="profile-header">
                     <div class="avatar-container">
                         <img id="profile-avatar" src="images/default-profile.png" alt="Profil Resmi">
-                        <input type="file" id="avatar-upload" accept="image/*" class="hidden">
                     </div>
                     <h2 id="display-username">KullanıcıAdı</h2>
                     <p id="user-email">email@example.com</p>
@@ -104,12 +129,9 @@
         <div id="toast" class="toast hidden"></div>
     </div>
 
-    <!-- Firebase ve Uygulama JS -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Uygulama JS dosyaları -->
+    <script src="js/main.js"></script>
     <script src="js/profile.js"></script>
+    <script src="js/clan.js"></script>
 </body>
 </html>
